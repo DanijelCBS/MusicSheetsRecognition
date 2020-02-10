@@ -151,3 +151,4 @@ htmlcov/
 .coverage
 .coverage.*
 *,cover
+/uploads/
