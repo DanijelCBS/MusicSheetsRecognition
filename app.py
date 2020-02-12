@@ -3,6 +3,8 @@ import os
 from flask import Flask, render_template, request, flash, redirect
 from werkzeug.utils import secure_filename
 
+from model.utils import process_image
+
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -33,7 +35,9 @@ def upload_image():
 
     if file and allowed_file(file.content_type):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        process_image(path)
         return 'OK'
 
 
