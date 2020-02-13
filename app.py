@@ -1,15 +1,11 @@
-import os
-
+import numpy as np
 from flask import Flask, render_template, request, flash, redirect
-from werkzeug.utils import secure_filename
 
 from model.utils import process_image
 
-UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 @app.route('/')
@@ -34,10 +30,8 @@ def upload_image():
         return redirect(request.url)
 
     if file and allowed_file(file.content_type):
-        filename = secure_filename(file.filename)
-        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(path)
-        process_image(path)
+        nparr = np.fromstring(file.read(), np.uint8)
+        result = process_image(nparr)  # input for neural network
         return 'OK'
 
 

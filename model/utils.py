@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 
-def process_image(path):
-    img = cv2.imread(path)
+def process_image(nparr):
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     img_inv = 255 - img
     inv_gray = cv2.cvtColor(img_inv, cv2.COLOR_RGB2GRAY)
 
@@ -12,6 +12,7 @@ def process_image(path):
     img_close = cv2.erode(img_dil, kernel, iterations=1)
 
     contours, hierarchy = cv2.findContours(img_close, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    staff_lines = []
     for contour in contours:
         min_area_rect = cv2.minAreaRect(contour)
         box = cv2.boxPoints(min_area_rect)
@@ -25,5 +26,6 @@ def process_image(path):
 
         if width > 400 and 50 <= height <= 120:
             (x, y, w, h) = cv2.boundingRect(contour)
-            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)  # should be changed to crop, instead of creating
-            # an image
+            staff_lines.append(img[y:y + h, x:x + w])
+
+    return np.array(staff_lines)
