@@ -74,9 +74,10 @@ class SequenceTrain(Sequence):
     def __getitem__(self, index):
         images = []
         labels = []
+        current_idx = index * self.batch_size
 
         for i in range(self.batch_size):
-            sample_filepath = self.data_list[index]
+            sample_filepath = self.data_list[(current_idx + i) % len(self.data_list)]
             sample_fullpath = os.path.join(self.corpus_dirpath, sample_filepath, sample_filepath)
 
             if self.distortions:

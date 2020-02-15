@@ -1,16 +1,18 @@
 from keras import Input, Model
-from keras.backend import ctc_batch_cost, variable
+from keras.backend import ctc_batch_cost, placeholder, shape, reshape, permute_dimensions, cast
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, MaxPooling2D, Lambda, Reshape, Dropout
+from keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, MaxPooling2D, Lambda, Dropout
 from keras.layers import LSTM
 from keras.layers import Activation
 from keras.layers.merge import add, concatenate
 
 
-def create_model(num_of_conv_blocks, vocabulary_size, image_width):
+def create_model(num_of_conv_blocks, vocabulary_size):
     # convolutional part
     model = Sequential()
-    input_data = Input(name='the_input', shape=(image_width, 128, 1), dtype='float32')
+    input_data = Input(name='the_input', shape=(None, 128, 1), dtype='float32')
+    # input_data = placeholder(shape=(None, None, 128, 1), dtype='float32')
+    input_shape = shape(input_data)
     num_of_filters = 32
     pool_size = 2
     for i in range(num_of_conv_blocks):
@@ -22,9 +24,8 @@ def create_model(num_of_conv_blocks, vocabulary_size, image_width):
 
     # cnn to rnn transition
     num_of_last_filters = num_of_filters * num_of_conv_blocks * 2
-    conv_to_rnn_dims = (input_data.shape[1] // (pool_size ** num_of_conv_blocks),
-                        (128 // (pool_size ** num_of_conv_blocks)) * num_of_last_filters)
-    model = Reshape(target_shape=conv_to_rnn_dims, name='reshape')(model)
+    dim_reduction = int(128 / pool_size ** num_of_conv_blocks)
+    model = Lambda(lambda x: reshape_for_rnn(x, num_of_last_filters, input_shape, dim_reduction))(model)
 
     # reccurent part
     lstm_11 = LSTM(512, return_sequences=True)(model)
@@ -54,6 +55,14 @@ def ctc_lambda_func(args):
     y_pred, labels, input_length, label_length = args
     y_pred = y_pred[:, 2:, :]
     return ctc_batch_cost(labels, y_pred, input_length, label_length)
+
+
+def reshape_for_rnn(x, num_of_last_filters, input_shape, dim_reduction):
+    x = permute_dimensions(x, (2, 0, 3, 1))
+    feature_dim = num_of_last_filters * dim_reduction
+    feature_width = input_shape[1] / dim_reduction
+    new_x_shape = (feature_width, input_shape[0], feature_dim)
+    return reshape(x, new_x_shape)
 
 
 if __name__ == '__main__':
