@@ -5,7 +5,7 @@ import numpy as np
 from keras.utils import Sequence
 import random
 
-from model import ctc_utils
+import ctc_utils
 
 
 class SequenceFactory:
@@ -42,8 +42,8 @@ class SequenceFactory:
         self.training_list = corpus_list[val_idx:]
         self.validation_list = corpus_list[:val_idx]
 
-        print('Training set size: %d', str(len(self.training_list)))
-        print('Validation set size: %d', str(len(self.validation_list)))
+        print(f'Training set size: {str(len(self.training_list))}')
+        print(f'Validation set size: {str(len(self.validation_list))}')
 
     def get_training_sequence(self):
         train = SequenceTrain(self.training_list, self.corpus_dirpath, self.corpus_filepath, self.batch_size,
@@ -100,14 +100,23 @@ class SequenceTrain(Sequence):
         max_image_width = max(image_widths)
 
         self.batch_images = np.ones(shape=[self.batch_size,
-                                           self.img_height,
                                            max_image_width,
+                                           self.img_height,
                                            self.img_channels], dtype=np.float32) * self.PAD_COLUMN
 
         for i, img in enumerate(images):
-            self.batch_images[i, 0:img.shape[0], 0:img.shape[1], 0] = img
+            self.batch_images[i, 0:img.shape[1], 0:img.shape[0], 0] = np.swapaxes(img, 1, 0)
 
-        return np.array([self.batch_images, np.array(labels)])
+        labels = np.array(labels)
+        input_length = np.zeros([self.batch_size, 1])
+        label_length = np.zeros([])
+        inputs = {'the_input': self.batch_images,
+                  'the_labels': labels,
+                  'input_length': input_length,
+                  'label_length': length,
+                  }
+        outputs = {'ctc': np.zeros([self.batch_size])}
+        return inputs, outputs
 
     def __len__(self):
         return int(np.ceil(len(self.data_list) / float(self.batch_size)))

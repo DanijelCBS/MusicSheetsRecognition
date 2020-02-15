@@ -1,17 +1,16 @@
 from keras import Input, Model
-from keras.backend import ctc_batch_cost, placeholder, shape, reshape, permute_dimensions, cast
-from keras.models import Sequential
+from keras.backend import ctc_batch_cost, shape, reshape, permute_dimensions
+from keras.layers import Activation
 from keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, MaxPooling2D, Lambda, Dropout
 from keras.layers import LSTM
-from keras.layers import Activation
 from keras.layers.merge import add, concatenate
+from keras.models import Sequential
 
 
 def create_model(num_of_conv_blocks, vocabulary_size):
     # convolutional part
     model = Sequential()
     input_data = Input(name='the_input', shape=(None, 128, 1), dtype='float32')
-    # input_data = placeholder(shape=(None, None, 128, 1), dtype='float32')
     input_shape = shape(input_data)
     num_of_filters = 32
     pool_size = 2
