@@ -1,10 +1,8 @@
-from keras import Input, Model
-from keras.backend import ctc_batch_cost, shape, reshape, permute_dimensions
-from keras.layers import Activation
-from keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, MaxPooling2D, Lambda, Dropout
-from keras.layers import LSTM
-from keras.layers.merge import add, concatenate
-from keras.models import Sequential
+from tensorflow_core.python import shape
+from tensorflow_core.python.keras import Sequential, Input, Model
+from tensorflow_core.python.keras.backend import concatenate, ctc_batch_cost, permute_dimensions, reshape
+from tensorflow_core.python.keras.layers import Conv2D, BatchNormalization, LeakyReLU, MaxPooling2D, Lambda, LSTM, \
+    Dropout, Dense, Activation, add
 
 
 def create_model(num_of_conv_blocks, vocabulary_size):

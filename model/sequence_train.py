@@ -2,10 +2,10 @@ import os
 
 import cv2
 import numpy as np
-from keras.utils import Sequence
 import random
 
 import ctc_utils
+from tensorflow_core.python.keras.utils import Sequence
 
 
 class SequenceFactory:
@@ -119,7 +119,7 @@ class SequenceTrain(Sequence):
         for i, img in enumerate(images):
             self.batch_images[i, 0:img.shape[1], 0:img.shape[0], 0] = np.swapaxes(img, 1, 0)
 
-        input_length = [self.batch_images.shape[1] / (2**4)] * self.batch_images.shape[0]
+        input_length = [self.batch_images.shape[1] / (2 ** 4)] * self.batch_images.shape[0]
         input_length = np.array(input_length)
         label_length = np.array(label_length)
 
