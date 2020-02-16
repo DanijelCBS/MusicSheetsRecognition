@@ -152,3 +152,4 @@ htmlcov/
 .coverage.*
 *,cover
 /uploads/
+/model/data/primus_dataset
