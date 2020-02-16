@@ -1,4 +1,4 @@
-from keras.callbacks import ModelCheckpoint, LambdaCallback
+from tensorflow_core.python.keras.callbacks import ModelCheckpoint, LambdaCallback
 
 from model import create_model
 from sequence_train import SequenceFactory
