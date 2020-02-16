@@ -39,7 +39,7 @@ def create_model(num_of_conv_blocks, vocabulary_size):
     Model(inputs=input_data, outputs=y_pred_out).summary()
 
     # ctc part
-    labels = Input(name='the_labels', shape=[vocabulary_size + 1], dtype='float32')
+    labels = Input(name='the_labels', shape=[None], dtype='float32')
     input_length = Input(name='input_length', shape=[1], dtype='int64')
     label_length = Input(name='label_length', shape=[1], dtype='int64')
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred_out, labels, input_length, label_length])
