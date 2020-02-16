@@ -20,7 +20,7 @@ def batch_output(batch, logs):
 
 
 if __name__ == '__main__':
-    sequence_factory = SequenceFactory('D:\\primusCalvoRizoAppliedSciences2018\\primus_dataset', 'data/train.txt',
+    sequence_factory = SequenceFactory('data/primus_dataset', 'data/train.txt',
                                        'data/vocabulary_semantic.txt',
                                        16, 128, 1, False, 0.1)
     model = create_model(4, sequence_factory.vocabulary_size)

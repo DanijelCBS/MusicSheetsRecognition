@@ -74,6 +74,7 @@ class SequenceTrain(Sequence):
     def __getitem__(self, index):
         images = []
         labels = []
+        label_length = []
         current_idx = index * self.batch_size
 
         for i in range(self.batch_size):
@@ -95,6 +96,7 @@ class SequenceTrain(Sequence):
             sample_gt_file.close()
 
             labels.append([self.word2int[lab] for lab in sample_gt_plain])
+            label_length.append(len(sample_gt_plain))
 
         image_widths = [img.shape[1] for img in images]
         max_image_width = max(image_widths)
@@ -107,13 +109,15 @@ class SequenceTrain(Sequence):
         for i, img in enumerate(images):
             self.batch_images[i, 0:img.shape[1], 0:img.shape[0], 0] = np.swapaxes(img, 1, 0)
 
+        input_length = [self.batch_images.shape[1] / (2**4)] * self.batch_images.shape[0]
+        input_length = np.array(input_length)
         labels = np.array(labels)
-        input_length = np.zeros([self.batch_size, 1])
-        label_length = np.zeros([])
+        label_length = np.array(label_length)
+
         inputs = {'the_input': self.batch_images,
                   'the_labels': labels,
                   'input_length': input_length,
-                  'label_length': length,
+                  'label_length': label_length,
                   }
         outputs = {'ctc': np.zeros([self.batch_size])}
         return inputs, outputs
