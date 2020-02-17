@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import subprocess
+import shlex
 
 
 def process_image(nparr):
@@ -29,3 +31,13 @@ def process_image(nparr):
             staff_lines.append(img[y:y + h, x:x + w])
 
     return np.array(staff_lines)
+
+
+def semantic_to_midi(input_file_path, output_file_path):
+    subprocess.call(shlex.split(
+        f'java -cp semantic_to_midi.jar es.ua.dlsi.im3.omr.encoding.semantic.SemanticImporter {input_file_path} {output_file_path}'))
+
+
+if __name__ == '__main__':
+    semantic_to_midi('C:/Users/korisnik/Desktop/primus_conversor/000100973-1_1_2.semantic',
+                     'C:/Users/korisnik/Desktop/primus_conversor/new.mid')
