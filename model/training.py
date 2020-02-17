@@ -1,4 +1,4 @@
-from tensorflow_core.python.keras.callbacks import ModelCheckpoint, LambdaCallback
+from keras.callbacks import ModelCheckpoint, LambdaCallback
 
 from model import create_model
 from sequence_train import SequenceFactory
@@ -10,8 +10,8 @@ def train_network(model, train_generator, val_generator):
     batch_log = LambdaCallback(on_batch_end=batch_output)
     callbacks_list = [checkpoint, batch_log]
 
-    model.fit_generator(train_generator, epochs=256, callbacks=callbacks_list, validation_data=val_generator,
-                        validation_freq=4)
+    model.fit_generator(train_generator, epochs=16, callbacks=callbacks_list, validation_data=val_generator,
+                        validation_freq=4, workers=2, use_multiprocessing=True)
 
 
 def batch_output(batch, logs):
@@ -20,10 +20,12 @@ def batch_output(batch, logs):
 
 
 if __name__ == '__main__':
+    image_height = 64
+    batch_size = 8
     sequence_factory = SequenceFactory('data/primus_dataset', 'data/train.txt',
                                        'data/vocabulary_semantic.txt',
-                                       4, 64, 1, False, 0.1)
-    model = create_model(4, 64, sequence_factory.vocabulary_size)
+                                       batch_size, image_height, 1, False, 0.1)
+    model = create_model(image_height, sequence_factory.vocabulary_size)
     train_sequence = sequence_factory.get_training_sequence()
     val_sequence = sequence_factory.get_validation_sequence()
     train_network(model, train_sequence, val_sequence)

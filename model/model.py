@@ -1,20 +1,17 @@
 from keras import Input, Model
 from keras.backend import ctc_batch_cost, shape, reshape, permute_dimensions, cast
-from keras.layers import Activation
+from keras.layers import Activation, Bidirectional, Reshape
 from keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, MaxPooling2D, Lambda, Dropout
 from keras.layers import LSTM
-from keras.layers.merge import add, concatenate
 from keras.models import Sequential
-from keras.callbacks import ModelCheckpoint, LambdaCallback
-from sequence_train import SequenceFactory
 
 
 def batch_output(batch, logs):
-    print('Finished batch: ' + str(batch))
+    print('\nFinished batch: ' + str(batch))
     print(logs)
 
 
-def create_model(image_height, sequence_factory):
+def create_model(image_height, vocabulary_size):
     # convolutional part
     model = Sequential()
     input_data = Input(name='the_input', shape=(None, image_height, 1), dtype='float32')
@@ -54,14 +51,11 @@ def create_model(image_height, sequence_factory):
     model = Lambda(lambda x: reshape_for_rnn(x, image_height, num_of_filters, input_shape, dim_reduction))(model)
 
     # reccurent part
-    lstm_11 = LSTM(512, return_sequences=True)(model)
-    lstm_12 = LSTM(512, return_sequences=True)(model)
-    lstm1_merged = add([lstm_11, lstm_12])
-    lstm_21 = LSTM(512, return_sequences=True)(lstm1_merged)
-    lstm_22 = LSTM(512, return_sequences=True)(lstm1_merged)
-    model = concatenate([lstm_21, lstm_22])
-    model = Dropout(0.3)(model)
-    model = Dense(sequence_factory.vocabulary_size + 1)(model)
+    model = Bidirectional(LSTM(256, return_sequences=True))(model)
+    model = Dropout(0.5)(model)
+    model = Bidirectional(LSTM(256, return_sequences=True))(model)
+    model = Dropout(0.5)(model)
+    model = Dense(vocabulary_size + 1)(model)
     y_pred_out = Activation('softmax', name='softmax')(model)
     Model(inputs=input_data, outputs=y_pred_out).summary()
 
@@ -75,16 +69,7 @@ def create_model(image_height, sequence_factory):
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
     model.compile(loss={'my_ctc': lambda y_true, y_pred: y_pred_out}, optimizer='adam')
 
-    weights_path = "weights-{epoch:02d}-{loss:.4f}.hdf5"
-    checkpoint = ModelCheckpoint(weights_path, monitor='loss', verbose=0, save_best_only=True, mode='min')
-    batch_log = LambdaCallback(on_batch_end=batch_output)
-    callbacks_list = [checkpoint, batch_log]
-
-    train_sequence = sequence_factory.get_training_sequence()
-    val_sequence = sequence_factory.get_validation_sequence()
-
-    model.fit_generator(train_sequence, epochs=256, callbacks=callbacks_list, validation_data=val_sequence,
-                        validation_freq=4, workers=2, use_multiprocessing=True)
+    return model
 
 
 def ctc_lambda_func(args):
@@ -98,12 +83,5 @@ def reshape_for_rnn(x, image_height, num_of_filters, input_shape, dim_reduction)
     feature_dim = cast(feature_dim, "int32")
     feature_width = input_shape[1] / dim_reduction
     feature_width = cast(feature_width, "int32")
-    new_x_shape = (feature_width, cast(input_shape[0], "int32"), feature_dim)
+    new_x_shape = (cast(input_shape[0], "int32"), feature_width, feature_dim)
     return reshape(x, new_x_shape)
-
-
-if __name__ == '__main__':
-    sequence_factory = SequenceFactory('data/primus_dataset', 'data/train.txt',
-                                       'data/vocabulary_semantic.txt',
-                                       1, 32, 1, False, 0.1)
-    create_model(32, sequence_factory)
