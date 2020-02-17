@@ -1,5 +1,17 @@
+.output {
+    width: 90%;
+}
+
 #target {
-    width: 30%;
-    height: 30%;
-    background-color: beige;
+    border: 1px solid black;
+    width: 50%;
+    height: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: auto;
+}
+
+#upload {
+    display: none;
+    margin-top: 10px;
 }

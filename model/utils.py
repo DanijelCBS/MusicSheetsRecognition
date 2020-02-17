@@ -11,7 +11,7 @@ def process_image(nparr):
     img_dil = cv2.dilate(inv_gray, kernel, iterations=2)
     img_close = cv2.erode(img_dil, kernel, iterations=1)
 
-    contours, hierarchy = cv2.findContours(img_close, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, _ = cv2.findContours(img_close, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     staff_lines = []
     for contour in contours:
         min_area_rect = cv2.minAreaRect(contour)

@@ -1,5 +1,14 @@
 body {
-    background-color: #212121;
-    color: white;
     font-family: Roboto, sans-serif;
+}
+
+#content {
+    text-align: center;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    top: 20%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto;
 }
