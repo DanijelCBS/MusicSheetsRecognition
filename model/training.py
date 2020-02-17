@@ -22,8 +22,8 @@ def batch_output(batch, logs):
 if __name__ == '__main__':
     sequence_factory = SequenceFactory('data/primus_dataset', 'data/train.txt',
                                        'data/vocabulary_semantic.txt',
-                                       16, 128, 1, False, 0.1)
-    model = create_model(4, sequence_factory.vocabulary_size)
+                                       4, 64, 1, False, 0.1)
+    model = create_model(4, 64, sequence_factory.vocabulary_size)
     train_sequence = sequence_factory.get_training_sequence()
     val_sequence = sequence_factory.get_validation_sequence()
     train_network(model, train_sequence, val_sequence)

@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 import ctc_utils
-from tensorflow_core.python.keras.utils import Sequence
+from keras.utils import Sequence
 
 
 class SequenceFactory:
@@ -128,7 +128,7 @@ class SequenceTrain(Sequence):
                   'input_length': input_length,
                   'label_length': label_length,
                   }
-        outputs = {'ctc': np.zeros([self.batch_size])}
+        outputs = {'my_ctc': np.zeros([self.batch_size])}
         return inputs, outputs
 
     def __len__(self):
