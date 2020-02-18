@@ -30,12 +30,16 @@ def process_image(nparr):
             (x, y, w, h) = cv2.boundingRect(contour)
             staff_lines.append(img[y:y + h, x:x + w])
 
-    return np.array(staff_lines)
+    return staff_lines
 
 
 def semantic_to_midi(input_file_path, output_file_path):
     subprocess.call(shlex.split(
         f'java -cp semantic_to_midi.jar es.ua.dlsi.im3.omr.encoding.semantic.SemanticImporter {input_file_path} {output_file_path}'))
+
+
+def midi_to_musicxml(midi_file_path):
+    pass
 
 
 if __name__ == '__main__':
