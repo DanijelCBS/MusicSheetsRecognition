@@ -1,7 +1,9 @@
+import shlex
+import subprocess
+
 import cv2
 import numpy as np
-import subprocess
-import shlex
+from music21 import converter, musicxml
 
 
 def process_image(nparr):
@@ -39,9 +41,12 @@ def semantic_to_midi(input_file_path, output_file_path):
 
 
 def midi_to_musicxml(midi_file_path):
-    pass
+    stream = converter.parse(midi_file_path)
+    GEX = musicxml.m21ToXml.GeneralObjectExporter(stream)
+    out = GEX.parse()
+
+    return out.decode('UTF-8').strip()
 
 
 if __name__ == '__main__':
-    semantic_to_midi('C:/Users/korisnik/Desktop/primus_conversor/000100973-1_1_2.semantic',
-                     'C:/Users/korisnik/Desktop/primus_conversor/new.mid')
+    print(midi_to_musicxml('C:\\Users\\korisnik\\Desktop\\primus_conversor\\new.mid'))

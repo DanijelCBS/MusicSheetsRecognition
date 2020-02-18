@@ -1,5 +1,5 @@
 import os
-from utils import semantic_to_midi
+from .utils import semantic_to_midi
 
 
 def predict_and_create_midi(slices, name):

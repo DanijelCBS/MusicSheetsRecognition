@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div id="embed-container"></div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@0.7.3/build/opensheetmusicdisplay.min.js"></script>
+    {% if musicXml %}
+        <script>
+            const container = new opensheetmusicdisplay.OpenSheetMusicDisplay('embed-container', {
+                backend: 'svg',
+                drawFromMeasureNumber: 1,
+                drawUpToMeasureNumber: Number.MAX_SAFE_INTEGER
+            });
+            container.load(`{{ musicXml|safe }}`).then(function () {
+                container.style.width = '500px';
+                container.render();
+            });
+        </script>
+    {% endif %}
+{% endblock %}

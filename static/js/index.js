@@ -49,6 +49,8 @@
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
+            }).then((response) => {
+                document.location.href = '/result';
             });
         });
     }
