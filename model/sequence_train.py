@@ -2,10 +2,10 @@ import os
 
 import cv2
 import numpy as np
-from keras.utils import Sequence
 import random
 
 import ctc_utils
+from keras.utils import Sequence
 
 
 class SequenceFactory:
@@ -76,6 +76,7 @@ class SequenceTrain(Sequence):
         labels = []
         label_length = []
         current_idx = index * self.batch_size
+        max_label_length = 0
 
         for i in range(self.batch_size):
             sample_filepath = self.data_list[(current_idx + i) % len(self.data_list)]
@@ -96,7 +97,16 @@ class SequenceTrain(Sequence):
             sample_gt_file.close()
 
             labels.append([self.word2int[lab] for lab in sample_gt_plain])
-            label_length.append(len(sample_gt_plain))
+            len_of_gt = len(sample_gt_plain)
+            label_length.append(len_of_gt)
+            if len_of_gt > max_label_length:
+                max_label_length = len_of_gt
+
+        labels_np = np.ones([self.batch_size, max_label_length])
+        for i, elem in enumerate(labels):
+            temp = np.ones(max_label_length)
+            temp[0:len(elem)] = np.asarray(elem)
+            labels_np[i, :] = temp
 
         image_widths = [img.shape[1] for img in images]
         max_image_width = max(image_widths)
@@ -109,17 +119,16 @@ class SequenceTrain(Sequence):
         for i, img in enumerate(images):
             self.batch_images[i, 0:img.shape[1], 0:img.shape[0], 0] = np.swapaxes(img, 1, 0)
 
-        input_length = [self.batch_images.shape[1] / (2**4)] * self.batch_images.shape[0]
+        input_length = [self.batch_images.shape[1] / (2 ** 4)] * self.batch_images.shape[0]
         input_length = np.array(input_length)
-        labels = np.array(labels)
         label_length = np.array(label_length)
 
         inputs = {'the_input': self.batch_images,
-                  'the_labels': labels,
+                  'the_labels': labels_np,
                   'input_length': input_length,
                   'label_length': label_length,
                   }
-        outputs = {'ctc': np.zeros([self.batch_size])}
+        outputs = {'my_ctc': np.zeros([self.batch_size])}
         return inputs, outputs
 
     def __len__(self):

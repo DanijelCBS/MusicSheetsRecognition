@@ -129,27 +129,17 @@ dmypy.json
 .pyre/
 
 .DS_Store
-.env
 .flaskenv
 *.pyc
 *.pyo
-env/
 env*
-dist/
-build/
-*.egg
-*.egg-info/
 _mailinglist
-.tox/
 .cache/
-.pytest_cache/
 .idea/
-docs/_build/
 
 # Coverage reports
-htmlcov/
-.coverage
-.coverage.*
 *,cover
 /uploads/
 model/semantic_to_midi.jar
+/model/data/primus_dataset
+2.1.0
