@@ -31,7 +31,7 @@ Treniranu arhitekturu mreže čine:
   </li>
 </ul>
 
-Pre puštanja ulazne slike u neuronsku mrežu, izdvajaju se pojedinačne linije notnog zapisa uz pomoć computer vision tehnika. 
+Pre puštanja testne slike u neuronsku mrežu, izdvajaju se pojedinačne linije notnog zapisa uz pomoć computer vision tehnika. 
 
 ## Potrebne biblioteke i alati
 Da bi se rešenje pokrenulo, potrebno je instalirati sledeće:
