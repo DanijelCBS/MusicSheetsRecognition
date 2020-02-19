@@ -49,9 +49,9 @@ def process_image(nparr):
     return staff_lines
 
 
-def semantic_to_midi(input_file_path, output_file_path):
+def semantic_to_midi(input_file_path, output_file_path, converter_path):
     subprocess.call(shlex.split(
-        f'java -cp C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\semantic_to_midi.jar es.ua.dlsi.im3.omr.encoding.semantic.SemanticImporter {input_file_path} {output_file_path}'))
+        f'java -cp {converter_path} es.ua.dlsi.im3.omr.encoding.semantic.SemanticImporter {input_file_path} {output_file_path}'))
 
 
 def midi_to_musicxml(midi_file_path):

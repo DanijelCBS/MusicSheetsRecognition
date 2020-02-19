@@ -4,27 +4,32 @@ import cv2
 import numpy as np
 from .model import create_model
 from .utils import resize, normalize
-from .tf_end_to_end.ctc_predict import predict_tf
+from .tf_end_to_end.tf_predict import predict_tf
 
 
-def predict_and_create_midi(slices, name, image_height):
+def predict_and_create_midi(slices, name, image_height, app):
+    name = os.path.splitext(name)[0]
     predictions = []
-    for slice in slices:
-        predictions.append(predict(slice, image_height, True))
+
+    for i, slice in enumerate(slices):
+        slice_pred = predict(slice, image_height, True, app)
+        slice_pred_concat = ' '.join(slice_pred)
+        slice_path = os.path.join(app.root_path, 'model\\data\\predictions', name + '__slice' + str(i) + '.semantic')
+        with open(slice_path, 'w') as semantic_file:
+            semantic_file.write(slice_pred_concat)
+        predictions.append(slice_pred)
 
     semantic_concat = [j for i in predictions for j in i]
     semantic = ' '.join(semantic_concat)
-    name = os.path.splitext(name)[0]
 
-    semantic_file_path = os.path.join('C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\data\\predictions',
-                                      name + '.semantic')
+    semantic_file_path = os.path.join(app.root_path, 'model\\data\\predictions', name + '.semantic')
 
     with open(semantic_file_path, 'w') as semantic_file:
         semantic_file.write(semantic)
 
-    midi_file_path = os.path.join('C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\data\\predictions',
-                                  name + '.mid')
-    semantic_to_midi(semantic_file_path, midi_file_path)
+    midi_file_path = os.path.join(app.root_path, 'model\\data\\predictions', name + '.mid')
+    converter_path = os.path.join(app.root_path, 'model\\semantic_to_midi.jar')
+    semantic_to_midi(semantic_file_path, midi_file_path, converter_path)
 
     return midi_file_path
 
@@ -41,9 +46,9 @@ def read_vocabulary(vocabulary_path):
     return int2word
 
 
-def predict(image, image_height, tf):
-    int2word = read_vocabulary(
-        'C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\data\\vocabulary_semantic.txt')
+def predict(image, image_height, tf, app):
+    voc_path = os.path.join(app.root_path, 'model\\data\\vocabulary_semantic.txt')
+    int2word = read_vocabulary(voc_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     if not tf:
         model = create_model(image_height, len(int2word))
@@ -72,12 +77,5 @@ def predict(image, image_height, tf):
 
         return str_prediction
     else:
-        return predict_tf(image, int2word,
-                          'C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\semantic_model\\semantic_model.meta')
-
-
-if __name__ == '__main__':
-    image_height = 32
-    int2word = read_vocabulary('data/vocabulary_semantic.txt')
-    model = create_model(image_height, len(int2word))
-    predict(model, 'weights-13-0.0006.hdf5', 'data/000051652-1_2_1.png', image_height)
+        model_path = os.path.join(app.root_path, 'model\\semantic_model\\semantic_model.meta')
+        return predict_tf(image, int2word, model_path)
