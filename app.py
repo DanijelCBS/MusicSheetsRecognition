@@ -1,6 +1,8 @@
 import numpy as np
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 import secrets
+
+from model.predict import predict_and_create_midi
 from model.utils import process_image, midi_to_musicxml
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -38,8 +40,8 @@ def upload_image():
     if file and allowed_file(file.content_type):
         nparr = np.frombuffer(file.read(), np.float32)
         result = process_image(nparr)  # input for neural network
-        # midi_path = predict_and_create_midi(result, file.filename)  # midi file path
-        midi_path = 'C:\\Users\\korisnik\\Desktop\\primus_conversor\\new.mid'
+        print(len(result))
+        midi_path = predict_and_create_midi(result, file.filename, 32)  # midi file path
         musicXml = midi_to_musicxml(midi_path)
         session['musicXml'] = musicXml
         return redirect(url_for('result')), 201

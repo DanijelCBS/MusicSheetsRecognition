@@ -2,23 +2,28 @@ import os
 from .utils import semantic_to_midi
 import cv2
 import numpy as np
-from model import create_model
-from ctc_utils import resize, normalize
+from .model import create_model
+from .utils import resize, normalize
+from .tf_end_to_end.ctc_predict import predict_tf
 
 
-def predict_and_create_midi(slices, name):
+def predict_and_create_midi(slices, name, image_height):
     predictions = []
     for slice in slices:
-        predictions.append(predict(slice))
+        predictions.append(predict(slice, image_height, True))
 
-    semantic = ' '.join(predictions)
+    semantic_concat = [j for i in predictions for j in i]
+    semantic = ' '.join(semantic_concat)
+    name = os.path.splitext(name)[0]
 
-    semantic_file_path = os.path.join('predictions', name + '.semantic')
+    semantic_file_path = os.path.join('C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\data\\predictions',
+                                      name + '.semantic')
 
     with open(semantic_file_path, 'w') as semantic_file:
         semantic_file.write(semantic)
 
-    midi_file_path = os.path.join('predictions', name + '.mid')
+    midi_file_path = os.path.join('C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\data\\predictions',
+                                  name + '.mid')
     semantic_to_midi(semantic_file_path, midi_file_path)
 
     return midi_file_path
@@ -36,31 +41,39 @@ def read_vocabulary(vocabulary_path):
     return int2word
 
 
-def predict(model, weights_path, image_path, image_height):
-    model.load_weights(weights_path)
-    image = cv2.imread(image_path, False)
-    image = resize(image, image_height)
-    image = normalize(image)
-    image = np.asarray(image).reshape(1, image.shape[1], image.shape[0], 1)
+def predict(image, image_height, tf):
+    int2word = read_vocabulary(
+        'C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\data\\vocabulary_semantic.txt')
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if not tf:
+        model = create_model(image_height, len(int2word))
+        model.load_weights('weights-13-0.0006.hdf5')
+        image = resize(image, image_height)
+        image = normalize(image)
+        image = np.asarray(image).reshape(1, image.shape[1], image.shape[0], 1)
 
-    seq_lengths = [image.shape[1] / 2 ** 4]
+        seq_lengths = [image.shape[1] / 2 ** 4]
 
-    labels_np = np.ones([8, 32])
-    input_length = np.array(seq_lengths)
-    label_length = np.ones([8, 1])
+        labels_np = np.ones([8, 32])
+        input_length = np.array(seq_lengths)
+        label_length = np.ones([8, 1])
 
-    inputs = {'the_input': image,
-              'the_labels': labels_np,
-              'input_length': input_length,
-              'label_length': label_length,
-              }
+        inputs = {'the_input': image,
+                  'the_labels': labels_np,
+                  'input_length': input_length,
+                  'label_length': label_length,
+                  }
 
-    prediction = model.predict(inputs)
+        prediction = model.predict(inputs)
 
-    print(prediction)
-    for w in prediction[0]:
-        print(int2word[int(w)]),
-        print('\t')
+        str_prediction = []
+        for w in prediction[0]:
+            str_prediction.append(int2word[int(w)])
+
+        return str_prediction
+    else:
+        return predict_tf(image, int2word,
+                          'C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\semantic_model\\semantic_model.meta')
 
 
 if __name__ == '__main__':

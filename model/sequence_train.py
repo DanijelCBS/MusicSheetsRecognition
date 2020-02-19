@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import random
 
-import ctc_utils
+from model import utils
 from keras.utils import Sequence
 
 
@@ -87,13 +87,13 @@ class SequenceTrain(Sequence):
             else:
                 sample_img = cv2.imread(sample_fullpath + '.png', False)
 
-            sample_img = ctc_utils.resize(sample_img, self.img_height)
-            images.append(ctc_utils.normalize(sample_img))
+            sample_img = utils.resize(sample_img, self.img_height)
+            images.append(utils.normalize(sample_img))
 
             sample_full_filepath = sample_fullpath + '.semantic'
 
             sample_gt_file = open(sample_full_filepath, 'r')
-            sample_gt_plain = sample_gt_file.readline().rstrip().split(ctc_utils.word_separator())
+            sample_gt_plain = sample_gt_file.readline().rstrip().split(utils.word_separator())
             sample_gt_file.close()
 
             labels.append([self.word2int[lab] for lab in sample_gt_plain])

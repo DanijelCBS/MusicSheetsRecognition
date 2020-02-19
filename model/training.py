@@ -1,7 +1,7 @@
 from keras.callbacks import ModelCheckpoint, LambdaCallback
 
-from model import create_model
-from sequence_train import SequenceFactory
+from .model import create_model
+from .sequence_train import SequenceFactory
 
 
 def train_network(model, train_generator, val_generator):

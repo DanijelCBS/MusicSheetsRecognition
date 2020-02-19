@@ -6,6 +6,20 @@ import numpy as np
 from music21 import converter, musicxml
 
 
+def word_separator():
+    return '\t'
+
+
+def normalize(image):
+    return (255. - image) / 255.
+
+
+def resize(image, height):
+    width = int(float(height * image.shape[1]) / image.shape[0])
+    sample_img = cv2.resize(image, (width, height))
+    return sample_img
+
+
 def process_image(nparr):
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     img_inv = 255 - img
@@ -37,7 +51,7 @@ def process_image(nparr):
 
 def semantic_to_midi(input_file_path, output_file_path):
     subprocess.call(shlex.split(
-        f'java -cp semantic_to_midi.jar es.ua.dlsi.im3.omr.encoding.semantic.SemanticImporter {input_file_path} {output_file_path}'))
+        f'java -cp C:\\Users\\Panda\\soft_vezbe\\MusicSheetsRecognition\\model\\semantic_to_midi.jar es.ua.dlsi.im3.omr.encoding.semantic.SemanticImporter {input_file_path} {output_file_path}'))
 
 
 def midi_to_musicxml(midi_file_path):
