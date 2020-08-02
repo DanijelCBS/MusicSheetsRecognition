@@ -12,7 +12,7 @@ Project for the subject Soft computing
   <li>Literature: https://www.researchgate.net/publication/324460067_End-to-End_Neural_Optical_Music_Recognition_of_Monophonic_Scores</li>
 </ul>
 
-# Setup
+## Setup
 To run this code you need the following:
  <ul>
   <li>Python3</li>
